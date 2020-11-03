@@ -1,5 +1,6 @@
 module Main where
 import qualified Utils as Utils
+import System.IO.Unsafe(unsafeDupablePerformIO)
 --import System.Console.ANSI
 import System.IO
 import System.Directory
@@ -16,22 +17,18 @@ main = do
 menu :: IO ()
 menu = do
    -- clearScreen
-    putStrLn "1 - Cadastrar novo ebook"
-    putStrLn "2 - Visualizar lista de ebooks lidos"
-    putStrLn "3 - Visualizar lista de ebooks finalizados"
-    putStrLn "4 - Marcar um ebook como finalizado"
-    putStrLn "5 - Dar nota à um ebook"
-    putStrLn "6 - Criar lista de desejos de leitura"
-    putStrLn "7 - Visualizar lista de desejos"
-    putStrLn "8 - Visuaizar informações sobre ebook"
-    putStrLn "Ou Digite 0 Para Sair" 
+    putStrLn "1 - Cadastrar novo ebook: "
+    putStrLn "2 - Visualizar lista de ebooks lidos: "
+    putStrLn "3 - Visualizar lista de ebooks finalizados: "
+    putStrLn "4 - Marcar um ebook como finalizado: "
+    putStrLn "5 - Dar nota à um ebook: "
+    putStrLn "6 - Adicionar livro à lista de desejos de leitura: "
+    putStrLn "7 - Visualizar lista de desejos: "
+    putStrLn "8 - Visuaizar informações sobre ebook: "
+    putStrLn "Ou Digite 0 Para Sair: " 
     putStrLn "\nOpcao: "
     opcao <- getLine
-    if (read opcao) == 0
-        then 
-            putStrLn("Saindo...") 
-        else do 
-            opcaoEscolhida (read opcao)
+    opcaoEscolhida (read opcao)
 
 -- OPÇÕES 
 
@@ -42,9 +39,10 @@ opcaoEscolhida opcao
     | opcao == 3 = do {{-visualizaLivrosFinalizados-} ; menu}
     | opcao == 4 = do {{-marcaFinalizado-}; menu}
     | opcao == 5 = do {{-notaLivro-}; menu}
-    | opcao == 6 = do {{-listaDesejos-}; menu}    
-    | opcao == 7 = do {{-visualizaListaDesejos-}; menu}  
+    | opcao == 6 = do {enviarLivroDesejado}    
+    | opcao == 7 = do {listarListaDesejos}  
     | opcao == 8 = do {{-visualizaInfoLivros-}; menu}  
+    | opcao == 0 = do {putStrLn"Saindo..."}
     | otherwise =  do {putStrLn "Opcao invalida, Porfavor escolha uma opcao valida \n" ; menu}
 
 
@@ -144,3 +142,24 @@ listarLivrosFinalizados = do
 filtraLivros :: [Int] -> [Livro] -> [Livro] -> [Livro]
 filtraLivros [] livros livrosFiltrados = livrosFiltrados
 filtraLivros (x:xs) livros livrosFiltrados = filtraLivros xs livros (livrosFiltrados ++ [getLivroByIndex x livros])
+
+-- Lista Desejos
+
+enviarLivroDesejado :: IO()
+enviarLivroDesejado = do
+    Utils.printEspaco
+    putStr "== Digite o nome do livro que deseja ler: "
+    nomeLivro <- getLine
+    appendFile "listaDesejos.txt" (nomeLivro ++ "\n")
+    Utils.printEspaco
+
+
+listarListaDesejos :: IO()
+listarListaDesejos = do
+    Utils.printEspaco
+    putStrLn "==== Sua lista de desejos: ====\n"  
+    listaDesejos <- readFile "listaDesejos.txt"
+    putStrLn listaDesejos
+    Utils.printEspaco
+
+
