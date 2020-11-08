@@ -2,6 +2,7 @@ module Main where
 import qualified Utils as Utils
 import System.IO
 import System.Directory
+import Data.List.Unique
 
 -- MENU
 
@@ -19,6 +20,7 @@ menu = do
     putStrLn "5 - Adicionar ebook à lista de desejos de leitura: "
     putStrLn "6 - Visualizar lista de desejos: "
     putStrLn "7 - Visuaizar informações sobre ebooks do sistema: "
+    putStrLn "8 - Pedir recomendação de livro: "
     putStrLn "0 - Para Sair: "
     putStrLn "\nOpcao: "
     opcao <- getLine
@@ -35,6 +37,7 @@ opcaoEscolhida opcao
     | opcao == 5 = do {enviarLivroDesejado; menu}
     | opcao == 6 = do {visualizaDesejos; menu}
     | opcao == 7 = do {livroDetail; menu}
+    | opcao == 8 = do {fazRecomendacao; menu}
     | opcao == 0 = do {putStrLn "Saindo..."}
     | otherwise =  do {putStrLn "Opcao invalida, Porfavor escolha uma opcao valida \n" ; menu}
 
@@ -50,7 +53,7 @@ sinopse :: String,
 editora :: String,
 autor :: String,
 nPaginas :: Integer
-} deriving (Show)
+} deriving (Show, Eq)
 
 -- Já disponíveis no sistema
 
@@ -70,6 +73,53 @@ livros = [Livro { indice = 0, nome = "Harry potter e o calice de fogo", genero =
           Livro { indice = 13, nome = "Cidade do Fogo Celestial", genero = "Literatura e Ficcao", ano = "2014", sinopse = "Quando uma das mais surpreendentes traições vem à luz, Clary, Jace, Izzy, Simon e Alec precisam fugir ― mesmo que sua jornada os leve aos mais assustadores reinos inferiores, onde nenhum Caçador de Sombras pisou antes e de onde nenhum ser humano jamais retornou.", editora = "Galera", autor = "Cassandra Clare", nPaginas = 532},
           Livro { indice = 14, nome = "Último sacrifício", genero = "Fantasia e Romance", ano = "2013", sinopse = "Todos os caminhos levaram até aqui. Todos os desafios foram apenas preparações para a derradeira neblina tingida de sangue que se aproxima no horizonte.Envolta num mundo de paixão e morte, Rose aguarda a sua sentença após o assassinato de Tatiana, pelo qual foi injustamente acusada.", editora = "HarperCollins Brasil", autor = "Richelle Mead", nPaginas = 613},
           Livro { indice = 15, nome = "Os Homens que Não Amavam as Mulheres", genero = "Literatura e Ficcao", ano = "2015", sinopse = "Os homens que não amavam as mulheres é uma fascinante e assustadora aventura vivida por um veterano jornalista e uma jovem e genial hacker cujo comportamento social beira o autismo. A riqueza dos personagens, a narrativa ágil e inteligente e os surpreendentes desdobramentos da história formam um conjunto magnífico e revelam Stieg Larsson como um grande mestre da literatura de suspense", editora = "Companhia das Letras", autor = "Stieg Larsson", nPaginas = 528}]
+
+
+getGeneros :: [Livro] -> [String]
+getGeneros [] = []
+getGeneros (x:xs) = [genero x] ++ (getGeneros xs)
+
+listGeneros :: [String]
+listGeneros = unique (getGeneros livros)
+
+listarGeneros :: [String] -> String
+listarGeneros [] = ""
+listarGeneros (x:xs) = x ++ "\n" ++ listarGeneros xs
+
+visualizaGeneros :: IO()
+visualizaGeneros = putStrLn (listarGeneros listGeneros)
+
+filterGeneros :: String -> [Livro]
+filterGeneros g = filterGeneros' livros g []
+
+filterGeneros' :: [Livro] -> String -> [Livro] -> [Livro]
+filterGeneros' [] g l = l
+filterGeneros' (x:xs) g l
+  | genero x == g = l ++ [x] ++ (filterGeneros' xs g l)
+  | otherwise = (filterGeneros' xs g l)
+
+getRecomendacao :: [Livro] -> String
+getRecomendacao [] = "Não temos uma recomendação no momento :("
+getRecomendacao (x:xs) = toStringLivro x
+
+fazRecomendacao :: IO ()
+fazRecomendacao = do
+  Utils.printEspaco
+  visualizaGeneros
+  putStrLn "Digite o genero que voce deseja recomendação: "
+  g <- getLine
+  let l = filterGeneros g
+  lendo <- listarLivrosLendo
+  finalizados <- listarLivrosFinalizados
+  let f = filtraLivrosLidosFinalizados l lendo finalizados
+  putStrLn (getRecomendacao f)
+  Utils.printEspaco
+
+filtraLivrosLidosFinalizados :: [Livro] -> [Livro] -> [Livro] -> [Livro]
+filtraLivrosLidosFinalizados [] lendo finalizados = []
+filtraLivrosLidosFinalizados (x:xs) lendo finalizados
+  | elem x lendo || elem x finalizados = filtraLivrosLidosFinalizados xs lendo finalizados
+  | otherwise = [x] ++ filtraLivrosLidosFinalizados xs lendo finalizados
 
 
 livroDetail :: IO ()
