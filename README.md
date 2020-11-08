@@ -11,13 +11,10 @@ Descrição:
 
 --------------------- Acompanhamento de Leitura ------------------------
 
-Sistema de acompanhamento pessoal de leitura, onde o usuário pode cadastrar novos livros que estiver lendo e acompanhar seu progresso em cada um. 
+Sistema de acompanhamento pessoal de leitura, onde o usuário pode adicionar livros à sua lista de leitura e acompanhar seu progresso em cada um. 
 
 
 Linguagens:
 
-Haskell
-Prolog
+Haskell e Prolog
 
-Detalhes:
-Instalar: cabal install ansi-terminal 
