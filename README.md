@@ -20,6 +20,7 @@ Haskell e Prolog
 
 
 É necessário utilizar os comandos: 
+
 cabal update
 
 cabal install ansi-terminal
