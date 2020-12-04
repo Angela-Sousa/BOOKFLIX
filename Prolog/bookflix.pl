@@ -145,7 +145,6 @@ marcaFinalizado(Adicionados) :-
 	read(Codigo),
 	livro(Codigo, Nome, Genero, Ano, Sinopse, Editora, Autor,NPaginas),
 	assertz(finalizado(livro(Codigo, Nome, Genero, Ano, Sinopse, Editora, Autor,NPaginas))),
-	retract(adicionado(livro(Codigo, Nome, Genero, Ano, Sinopse, Editora, Autor,NPaginas))),
 	writeln("Livro finalizado com sucesso."), nl.  
 
 
