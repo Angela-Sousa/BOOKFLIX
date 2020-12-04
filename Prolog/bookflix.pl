@@ -112,5 +112,90 @@ listarLivros([Head|Tail], Codigo) :-
 print() :-
 	writeln("Livros:"), 
 	findall(Nome, livro(_,Nome,_,_,_,_,_,_), Livros), 
-	listarLivros(Livros, 0), nl.
-	
+	listarLivros(Livros, 0), nl. 
+
+
+adicionaLivro(Codigo) :-
+	not(livro(Codigo,_,_,_,_,_,_,_)),
+	writeln("Livro inexistente."), nl.
+
+adicionaLivro(Codigo) :-
+	livro(Codigo, Nome, Genero, Ano, Sinopse, Editora, Autor,NPaginas),
+	assertz(adicionado(livro(Codigo, Nome, Genero, Ano, Sinopse, Editora, Autor,NPaginas))),
+	writeln("Livro adicionado com sucesso."), nl.
+
+imprimeLendo([]) :-
+	not(adicionado(livro(_,_,_,_,_,_,_,_))),
+	writeln("Nao ha livros na estante de leitura."), nl.
+
+imprimeLendo([]).
+imprimeLendo([Head|Tail]):-
+	adicionado(livro(_,Head,_,_,_,_,_,_)),
+	livro(Codigo,Head,_,_,_,_,_,_), 
+	write(Codigo), 
+	write(" - "), 
+	writeln(Head), 
+	imprimeLendo(Tail), nl.
+
+
+marcaFinalizado(Adicionados) :-
+	writeln("Você está lendo esses livros: "), nl,
+	imprimeLendo(Adicionados),
+	writeln("Digite o id do livro que quer marcar como finalizado: "), nl,
+	read(Codigo),
+	livro(Codigo, Nome, Genero, Ano, Sinopse, Editora, Autor,NPaginas),
+	assertz(finalizado(livro(Codigo, Nome, Genero, Ano, Sinopse, Editora, Autor,NPaginas))),
+	retract(adicionado(livro(Codigo, Nome, Genero, Ano, Sinopse, Editora, Autor,NPaginas))),
+	writeln("Livro finalizado com sucesso."), nl.  
+
+
+imprimeFinalizado([]) :-
+	not(finalizado(livro(_,_,_,_,_,_,_,_))),
+	writeln("Nao ha livros finalizados."), nl.
+
+
+imprimeFinalizado([]). 
+
+imprimeFinalizado([Head|Tail]):-
+	adicionado(livro(_,Head,_,_,_,_,_,_)),
+	livro(Codigo,Head,_,_,_,_,_,_), 
+	write(Codigo), 
+	write(" - "), 
+	writeln(Head), 
+	imprimeFinalizado(Tail).	
+
+
+
+adicionaListaDesejo(Codigo) :-
+	livro(Codigo, Nome, Genero, Ano, Sinopse, Editora, Autor,NPaginas),
+	assertz(desejado(livro(Codigo, Nome, Genero, Ano, Sinopse, Editora, Autor,NPaginas))),
+	writeln("Livro adicionado à lista de desejos com sucesso."), nl.
+
+
+imprimeDesejados([]) :-
+	not(desejado(livro(_,_,_,_,_,_,_,_))),
+	writeln("Nao ha livros na lista de desejos."), nl.
+
+imprimeDesejados([]).
+
+imprimeDesejados([Head|Tail]):-
+	desejado(livro(_,Head,_,_,_,_,_,_)),
+	livro(Codigo,Head,_,_,_,_,_,_), 
+	write(Codigo), 
+	write(" - "), 
+	writeln(Head), 
+	imprimeDesejados(Tail), nl.
+
+logo():-
+	nl,
+	write("
+
+	██████╗   ██████╗   ██████╗  ██  █║ ███████╗ ██╗    ██╗  █║   █║ 
+	██╔══██╗ ██╔═══██  ██╔═══██  ██ █║  ██╔════╝ ██║    ██║   █║ █║ 
+	██████╔╝ ██║   ██║ ██║   ██║ ███║   █████╗   ██║    ██║    ██║  
+	██╔══██╗ ██║   ██║ ██║   ██║ ██ █║  ██╔══╝   ██║    ██║   █║ █║ 
+	██████╔╝  ██████╔╝  ██████╔╝ ██║ █║ ██║      █████║ ██║  █║   █║
+	╚═════╝   ╚═════╝   ╚═════╝  ╚═╝ ╚╝ ╚═╝      ╚════╝ ╚═╝  ╚╝   ╚╝
+                                                                                                                               
+	"), 
+	nl.
