@@ -18,14 +18,3 @@ Linguagens:
 
 Haskell e Prolog
 
-
-É necessário utilizar os comandos: 
-
-cabal update
-
-cabal install ansi-terminal
-
-cabal install Unique
-
-
-
